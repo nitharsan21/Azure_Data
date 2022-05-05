@@ -7,8 +7,8 @@ extra_configs = {"fs.azure.account.key.esgidatas.blob.core.windows.net":dbutils.
 
 # COMMAND ----------
 
-rawdata = spark.read.csv("/mnt/groupe8/Characters.csv",sep=';',header=True)
-
+df = spark.read.csv("/mnt/groupe8/Characters.csv",sep=';',header=True)
+display(df)
 
 # COMMAND ----------
 
