@@ -1,4 +1,21 @@
 # Databricks notebook source
+if not any(mount.mountPoint == '/mnt/groupe8' for mount in dbutils.fs.mounts()):
+    dbutils.fs.mount(
+    source = "wasbs://groupe8@esgidatas.blob.core.windows.net",
+    mount_point = "/mnt/groupe8",
+    extra_configs = {"fs.azure.account.key.esgidatas.blob.core.windows.net":dbutils.secrets.get(scope = "ScopeESGI", key = "testH")})
+
+
+# COMMAND ----------
+
+df = spark.read.csv("/mnt/groupe8/Characters_val.csv",sep=';',header=True)
+
+# COMMAND ----------
+
+df.printSchema()
+
+# COMMAND ----------
+
 import os
 import requests
 import numpy as np
@@ -37,6 +54,16 @@ url_api = "https://adb-8992331337369088.8.azuredatabricks.net/model/test_potterG
 token = "dapifdaa7eb49339a555117f54cd49d09b5d"
 
 score_model(url_api,token,json_test)
+
+# COMMAND ----------
+
+df_collect = df.collect()
+
+for row in df_collect:
+    json = '[ { "Gender": "',row["Gender"],'", "Wand": "',row["Wand"].replace('"',' ') ,'", "Patronus": "',row["Patronus"],'", "Species": "',row["Species"],'","Bloodstatus":"',row["Bloodstatus"],'","Loyalty": "',row["Loyalty"],'","Skills": "',row["Skills"],'","Birth": "',row["Birth"],'"}]' 
+    
+    json_test = json.loads(json)
+    print(row["Name"] , " : ", score_model(url_api,token,json_test) )
 
 # COMMAND ----------
 
